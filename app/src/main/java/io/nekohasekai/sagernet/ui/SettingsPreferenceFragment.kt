@@ -1,11 +1,14 @@
 package io.nekohasekai.sagernet.ui
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.preference.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -19,6 +22,19 @@ import io.nekohasekai.sagernet.utils.Theme
 import moe.matsuri.nb4a.ui.*
 
 class SettingsPreferenceFragment : PreferenceFragmentCompat() {
+
+    private val requestOverlayPermission =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val showFloatingPixel = findPreference<SwitchPreference>("showFloatingPixel")!!
+                if (Settings.canDrawOverlays(requireContext())) {
+                    showFloatingPixel.isChecked = true
+                    requireContext().startService(Intent(context, io.nekohasekai.sagernet.bg.FloatingPixelService::class.java))
+                } else {
+                    showFloatingPixel.isChecked = false
+                }
+            }
+        }
 
     private lateinit var isProxyApps: SwitchPreference
 
@@ -34,6 +50,16 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
     private val reloadListener = Preference.OnPreferenceChangeListener { _, _ ->
         needReload()
         true
+    }
+
+    override fun onDisplayPreferenceDialog(preference: Preference) {
+        if (preference is PositionPreference) {
+            val dialogFragment = PositionPreferenceDialogFragment.newInstance(preference.key)
+            dialogFragment.setTargetFragment(this, 0)
+            dialogFragment.show(parentFragmentManager, "PositionPreferenceDialogFragment")
+        } else {
+            super.onDisplayPreferenceDialog(preference)
+        }
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -168,6 +194,27 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         tunImplementation.onPreferenceChangeListener = reloadListener
         acquireWakeLock.onPreferenceChangeListener = reloadListener
         globalCustomConfig.onPreferenceChangeListener = reloadListener
+
+        val showFloatingPixel = findPreference<SwitchPreference>("showFloatingPixel")!!
+        showFloatingPixel.setOnPreferenceChangeListener { _, newValue ->
+            val enabled = newValue as Boolean
+            if (enabled) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(requireContext())) {
+                    val intent = Intent(
+                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:${requireActivity().packageName}")
+                    )
+                    requestOverlayPermission.launch(intent)
+                    false // Don't update the switch state immediately
+                } else {
+                    requireContext().startService(Intent(context, io.nekohasekai.sagernet.bg.FloatingPixelService::class.java))
+                    true
+                }
+            } else {
+                requireContext().stopService(Intent(context, io.nekohasekai.sagernet.bg.FloatingPixelService::class.java))
+                true
+            }
+        }
     }
 
     override fun onResume() {
@@ -178,6 +225,17 @@ class SettingsPreferenceFragment : PreferenceFragmentCompat() {
         }
         if (::globalCustomConfig.isInitialized) {
             globalCustomConfig.notifyChanged()
+        }
+
+        findPreference<SwitchPreference>("showFloatingPixel")?.apply {
+            val hasOverlayPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Settings.canDrawOverlays(requireContext())
+            } else {
+                true
+            }
+            if (!hasOverlayPermission) {
+                isChecked = false
+            }
         }
     }
 

@@ -575,4 +575,11 @@
     <string name="reset_settings">Restore default settings</string>
     <string name="reset_settings_message">Restore default settings, but data such as nodes and groups will be retained. To completely clear data, clear application data directly in the system settings.</string>
     <string name="minimize">Minimize</string>
+
+    <string name="floating_pixel_title">Floating Pixel</string>
+    <string name="show_floating_pixel">Show Floating Pixel</string>
+    <string name="show_floating_pixel_summary">Display a 1x1 pixel overlay on the screen</string>
+    <string name="floating_pixel_position">Floating Pixel Position</string>
+    <string name="floating_pixel_x_coordinate">X Coordinate</string>
+    <string name="floating_pixel_y_coordinate">Y Coordinate</string>
 </resources>

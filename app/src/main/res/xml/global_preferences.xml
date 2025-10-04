@@ -246,4 +246,16 @@
             app:key="showBottomBar"
             app:title="@string/show_bottom_bar" />
     </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/floating_pixel_title">
+        <SwitchPreference
+            app:defaultValue="false"
+            app:key="showFloatingPixel"
+            app:summary="@string/show_floating_pixel_summary"
+            app:title="@string/show_floating_pixel" />
+        <moe.matsuri.nb4a.ui.PositionPreference
+            app:dependency="showFloatingPixel"
+            app:key="floatingPixelPosition"
+            app:title="@string/floating_pixel_position" />
+    </PreferenceCategory>
 </PreferenceScreen>
