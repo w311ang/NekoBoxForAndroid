@@ -88,6 +88,10 @@ object DataStore : OnPreferenceDataStoreChangeListener {
     var enableClashAPI by configurationStore.boolean(Key.ENABLE_CLASH_API)
     var showBottomBar by configurationStore.boolean(Key.SHOW_BOTTOM_BAR)
 
+    var showFloatingPixel by configurationStore.boolean("showFloatingPixel")
+    var floatingPixelX by configurationStore.int("floatingPixelX")
+    var floatingPixelY by configurationStore.int("floatingPixelY")
+
     var allowInsecureOnRequest by configurationStore.boolean(Key.ALLOW_INSECURE_ON_REQUEST)
     var networkChangeResetConnections by configurationStore.boolean(Key.NETWORK_CHANGE_RESET_CONNECTIONS) { true }
     var wakeResetConnections by configurationStore.boolean(Key.WAKE_RESET_CONNECTIONS)
