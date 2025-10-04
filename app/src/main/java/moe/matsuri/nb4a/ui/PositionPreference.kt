@@ -14,7 +14,7 @@ class PositionPreference @JvmOverloads constructor(
 
     init {
         dialogLayoutResource = R.layout.dialog_position_preference
-        positiveButtonText = android.R.string.ok
-        negativeButtonText = android.R.string.cancel
+        setPositiveButtonText(android.R.string.ok)
+        setNegativeButtonText(android.R.string.cancel)
     }
 }
